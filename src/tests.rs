@@ -9,6 +9,7 @@ enum NumType {
     DivByThree,
     DivByFour,
     DivByFive,
+    IsMagicNum(i32),
 }
 
 impl Filter for NumType {
@@ -21,6 +22,7 @@ impl Filter for NumType {
             NumType::DivByThree => item % 3 == 0,
             NumType::DivByFour => item % 4 == 0,
             NumType::DivByFive => item % 5 == 0,
+            NumType::IsMagicNum(num) => item == num,
             _ => false,
         }
     }
@@ -28,7 +30,7 @@ impl Filter for NumType {
 
 #[test]
 fn filter_test() {
-    let nums = vec![1, 2, 3, 4, 5, 6, 9, 12, 15, 16, 20, 22, 24];
+    let nums = vec![1, 2, 3, 4, 5, 6, 9, 12, 15, 16, 20, 22, 24, 1024];
     let test = NumType::Odd
         | NumType::Even & NumType::DivByThree & NumType::DivByFour
         | NumType::DivByFive;
@@ -62,4 +64,7 @@ fn filter_test() {
         .filter(test.ref_one_filter())
         .collect::<Vec<_>>();
     assert_eq!(vec![3, 5, 9, 15, 20], result);
+
+    let test = NumType::IsMagicNum(1024);
+    assert!(test.self_filter()(1024));
 }
