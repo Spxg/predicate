@@ -26,13 +26,14 @@ where
     }
 
     pub fn op(&mut self, item: &<T as Filter>::Item) -> bool {
+        let op = self.op;
         let mut inner = || {
             let lhs = self.lhs.take().unwrap_or_default();
             let rhs = self.rhs.take().unwrap_or_default();
             (lhs, rhs)
         };
 
-        match self.op {
+        match op {
             Operation::And => {
                 let (lhs, rhs) = inner();
                 lhs.op_unit().op(item) & rhs.op_unit().op(item)
