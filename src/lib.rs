@@ -36,11 +36,11 @@ where
         match op {
             Operation::And => {
                 let (lhs, rhs) = inner();
-                lhs.op_unit().op(item) & rhs.op_unit().op(item)
+                lhs.op_unit().op(item) && rhs.op_unit().op(item)
             }
             Operation::Or => {
                 let (lhs, rhs) = inner();
-                lhs.op_unit().op(item) | rhs.op_unit().op(item)
+                lhs.op_unit().op(item) || rhs.op_unit().op(item)
             }
             Operation::Single => {
                 let (lhs, _) = inner();
