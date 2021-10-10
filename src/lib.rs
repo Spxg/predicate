@@ -17,7 +17,7 @@ pub struct OpUnit<T> {
 
 impl<T> OpUnit<T>
 where
-    T: Filter + Default,
+    T: Predicate + Default,
 {
     pub fn new(lhs: Option<T>, rhs: Option<T>, op: Operation) -> OpUnit<T> {
         OpUnit { op, lhs, rhs }
@@ -29,7 +29,7 @@ where
         (lhs, rhs)
     }
 
-    pub fn check(&mut self, item: &<T as Filter>::Item) -> bool {
+    pub fn check(&mut self, item: &<T as Predicate>::Item) -> bool {
         let (lhs, rhs) = self.get_lhs_and_rhs();
         match &self.op {
             Operation::And => lhs.get_op_unit().check(item) && rhs.get_op_unit().check(item),
@@ -43,7 +43,7 @@ pub trait OpUnitTrait: Sized + Default {
     fn get_op_unit(&self) -> OpUnit<Self>;
 }
 
-pub trait Filter: OpUnitTrait + 'static {
+pub trait Predicate: OpUnitTrait + 'static {
     type Item;
 
     fn rules(&self, item: &Self::Item) -> bool;

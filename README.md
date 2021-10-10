@@ -1,10 +1,10 @@
-# Filter
-Use enum to filter something, support | and & operator.
+# Predicate
+Use enum to predicate something.
 
-Just need to implement Filter Trait with [filter-macros](https://github.com/Spxg/filter-macros) crate.
+Just need to implement Predicate Trait with [predicate-macros](https://github.com/Spxg/predicate-macros) crate, support | and & operator.
 
 ## How to work
-![how_to_work](https://github.com/Spxg/filter/blob/master/how_to_work.png)
+![how_to_work](https://github.com/Spxg/predicate/blob/master/how_to_work.png)
 
 ## Example
 ```rust
@@ -19,7 +19,7 @@ enum NumType {
     IsMagicNum(i32),
 }
 
-impl Filter for NumType {
+impl Predicate for NumType {
     type Item = i32;
 
     fn rules(&self, item: &Self::Item) -> bool {
@@ -43,7 +43,7 @@ fn main() {
     let result = nums
         .clone()
         .into_iter()
-        .filter(test.ref_one_filter())
+        .filter(test.predicate_ref_one())
         .collect::<Vec<_>>();
     assert_eq!(vec![1, 3, 5, 9, 12, 15, 20, 24], result);
 
@@ -51,7 +51,7 @@ fn main() {
     let result = nums
         .clone()
         .into_iter()
-        .filter(test.ref_one_filter())
+        .filter(test.predicate_ref_one())
         .collect::<Vec<_>>();
     assert!(result.is_empty());
 
@@ -59,19 +59,20 @@ fn main() {
     let result = nums
         .clone()
         .into_iter()
-        .filter(test.ref_one_filter())
+        .filter(test.predicate_ref_one())
         .collect::<Vec<_>>();
     assert_eq!(result, nums);
 
     let test = NumType::DivByThree & NumType::Odd | NumType::DivByFive;
     let result = nums
         .clone()
-        .into_iter()
-        .filter(test.ref_one_filter())
+        .iter()
+        .filter(test.predicate_ref_double())
+        .map(|num| *num)
         .collect::<Vec<_>>();
     assert_eq!(vec![3, 5, 9, 15, 20], result);
 
     let test = NumType::IsMagicNum(1024);
-    assert!(test.self_filter()(1024));
+    assert!(test.predicate_self()(1024));
 }
 ```

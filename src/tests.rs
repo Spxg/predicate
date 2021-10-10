@@ -1,5 +1,5 @@
-use crate::{Filter, OpUnit, OpUnitTrait, Operation};
-use filter_macros::{add_fields, BitAnd, BitOr, OpUnitTrait};
+use crate::{Predicate, OpUnit, OpUnitTrait, Operation};
+use predicate_macros::{add_fields, BitAnd, BitOr, OpUnitTrait};
 
 #[add_fields]
 #[derive(BitAnd, BitOr, OpUnitTrait)]
@@ -12,7 +12,7 @@ enum NumType {
     IsMagicNum(i32),
 }
 
-impl Filter for NumType {
+impl Predicate for NumType {
     type Item = i32;
 
     fn rules(&self, item: &Self::Item) -> bool {
