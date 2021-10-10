@@ -25,27 +25,18 @@ where
         OpUnit { op, lhs, rhs }
     }
 
-    pub fn op(&mut self, item: &<T as Filter>::Item) -> bool {
-        let op = self.op;
-        let mut inner = || {
-            let lhs = self.lhs.take().unwrap_or_default();
-            let rhs = self.rhs.take().unwrap_or_default();
-            (lhs, rhs)
-        };
+    pub fn get_lhs_and_rhs(&mut self) -> (T, T) {
+        let lhs = self.lhs.take().unwrap_or_default();
+        let rhs = self.rhs.take().unwrap_or_default();
+        (lhs, rhs)
+    }
 
-        match op {
-            Operation::And => {
-                let (lhs, rhs) = inner();
-                lhs.op_unit().op(item) && rhs.op_unit().op(item)
-            }
-            Operation::Or => {
-                let (lhs, rhs) = inner();
-                lhs.op_unit().op(item) || rhs.op_unit().op(item)
-            }
-            Operation::Single => {
-                let (lhs, _) = inner();
-                lhs.rules(item)
-            }
+    pub fn op(&mut self, item: &<T as Filter>::Item) -> bool {
+        let (lhs, rhs) = self.get_lhs_and_rhs();
+        match &self.op {
+            Operation::And => lhs.op_unit().op(item) && rhs.op_unit().op(item),
+            Operation::Or => lhs.op_unit().op(item) || rhs.op_unit().op(item),
+            Operation::Single => lhs.rules(item),
         }
     }
 }
