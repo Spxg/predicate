@@ -37,7 +37,7 @@ fn filter_test() {
     let result = nums
         .clone()
         .into_iter()
-        .filter(test.ref_one_filter())
+        .filter(test.predicate_ref_one())
         .collect::<Vec<_>>();
     assert_eq!(vec![1, 3, 5, 9, 12, 15, 20, 24], result);
 
@@ -45,7 +45,7 @@ fn filter_test() {
     let result = nums
         .clone()
         .into_iter()
-        .filter(test.ref_one_filter())
+        .filter(test.predicate_ref_one())
         .collect::<Vec<_>>();
     assert!(result.is_empty());
 
@@ -53,18 +53,19 @@ fn filter_test() {
     let result = nums
         .clone()
         .into_iter()
-        .filter(test.ref_one_filter())
+        .filter(test.predicate_ref_one())
         .collect::<Vec<_>>();
     assert_eq!(result, nums);
 
     let test = NumType::DivByThree & NumType::Odd | NumType::DivByFive;
     let result = nums
         .clone()
-        .into_iter()
-        .filter(test.ref_one_filter())
+        .iter()
+        .filter(test.predicate_ref_double())
+        .map(|num| *num)
         .collect::<Vec<_>>();
     assert_eq!(vec![3, 5, 9, 15, 20], result);
 
     let test = NumType::IsMagicNum(1024);
-    assert!(test.self_filter()(1024));
+    assert!(test.predicate_self()(1024));
 }

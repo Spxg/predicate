@@ -7,3 +7,4 @@ edition = "2018"
 
 [dev-dependencies]
 filter-macros = { git = "https://github.com/Spxg/filter-macros.git", branch = "master" }
+# filter-macros = { path = "../filter-macros" }
