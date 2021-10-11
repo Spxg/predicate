@@ -8,7 +8,7 @@ pub enum Operation {
     Single,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct OpUnit<T> {
     op: Operation,
     lhs: Option<T>,
@@ -23,14 +23,23 @@ where
         OpUnit { op, lhs, rhs }
     }
 
-    pub fn get_lhs_and_rhs(&mut self) -> (T, T) {
-        let lhs = self.lhs.take().unwrap_or_default();
-        let rhs = self.rhs.take().unwrap_or_default();
-        (lhs, rhs)
+    pub fn get_lhs_and_rhs(&self) -> (Option<&T>, Option<&T>) {
+        (self.lhs.as_ref(), self.rhs.as_ref())
     }
 
-    pub fn check(&mut self, item: &<T as Predicate>::Item) -> bool {
-        let (lhs, rhs) = self.get_lhs_and_rhs();
+    pub fn check(&self, item: &<T as Predicate>::Item) -> bool {
+        let default = T::default();
+        let (lhs_option, rhs_option) = self.get_lhs_and_rhs();
+        
+        let lhs = match lhs_option {
+            Some(lhs) => lhs,
+            None => &default,
+        };
+        let rhs = match rhs_option {
+            Some(rhs) => rhs,
+            None => &default,
+        };
+
         match &self.op {
             Operation::And => lhs.get_op_unit().check(item) && rhs.get_op_unit().check(item),
             Operation::Or => lhs.get_op_unit().check(item) || rhs.get_op_unit().check(item),
