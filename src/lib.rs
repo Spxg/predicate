@@ -48,7 +48,7 @@ where
     }
 }
 
-pub trait OpUnitTrait: Sized + Default {
+pub trait OpUnitTrait: Sized + Default + Clone {
     fn get_op_unit(&self) -> OpUnit<Self>;
 }
 
@@ -56,14 +56,17 @@ pub trait Predicate: OpUnitTrait + 'static {
     type Item;
 
     fn rules(&self, item: &Self::Item) -> bool;
+
     fn predicate_ref_double(self) -> Box<dyn FnMut(&&Self::Item) -> bool> {
         let f = move |item: &&Self::Item| self.get_op_unit().check(item);
         Box::new(f)
     }
+
     fn predicate_ref_one(self) -> Box<dyn FnMut(&Self::Item) -> bool> {
         let f = move |item: &Self::Item| self.get_op_unit().check(item);
         Box::new(f)
     }
+    
     fn predicate_self(self) -> Box<dyn FnMut(Self::Item) -> bool> {
         let f = move |item: Self::Item| self.get_op_unit().check(&item);
         Box::new(f)

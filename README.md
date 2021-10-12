@@ -9,7 +9,7 @@ Just need to implement Predicate Trait with [predicate-macros](https://github.co
 ## Example
 ```rust
 #[add_fields]
-#[derive(BitAnd, BitOr, OpUnitTrait)]
+#[derive(Clone, BitAnd, BitOr, OpUnitTrait)]
 enum NumType {
     Odd,
     Even,

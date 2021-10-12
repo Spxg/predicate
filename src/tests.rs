@@ -2,7 +2,7 @@ use crate::{Predicate, OpUnit, OpUnitTrait, Operation};
 use predicate_macros::{add_fields, BitAnd, BitOr, OpUnitTrait};
 
 #[add_fields]
-#[derive(BitAnd, BitOr, OpUnitTrait)]
+#[derive(Clone, BitAnd, BitOr, OpUnitTrait)]
 enum NumType {
     Odd,
     Even,
