@@ -1,8 +1,8 @@
-use crate::{Predicate, OpUnit, OpUnitTrait, Operation};
+use crate::{OpUnit, OpUnitRcType, OpUnitTrait, Operation, Predicate};
 use predicate_macros::{add_fields, BitAnd, BitOr, OpUnitTrait};
 
 #[add_fields]
-#[derive(Clone, BitAnd, BitOr, OpUnitTrait)]
+#[derive(BitAnd, BitOr, OpUnitTrait)]
 enum NumType {
     Odd,
     Even,
@@ -10,6 +10,7 @@ enum NumType {
     DivByFour,
     DivByFive,
     IsMagicNum(i32),
+    More(Box<dyn Fn(&i32) -> bool>),
 }
 
 impl Predicate for NumType {
@@ -23,11 +24,11 @@ impl Predicate for NumType {
             NumType::DivByFour => item % 4 == 0,
             NumType::DivByFive => item % 5 == 0,
             NumType::IsMagicNum(num) => item == num,
+            NumType::More(f) => f(item),
             _ => false,
         }
     }
 }
-
 #[test]
 fn filter_test() {
     let nums = vec![1, 2, 3, 4, 5, 6, 9, 12, 15, 16, 20, 22, 24, 1024];
@@ -65,6 +66,14 @@ fn filter_test() {
         .map(|num| *num)
         .collect::<Vec<_>>();
     assert_eq!(vec![3, 5, 9, 15, 20], result);
+
+    let test = NumType::More(Box::new(|i| i % 6 == 0));
+    let result = nums
+        .clone()
+        .into_iter()
+        .filter(test.predicate_ref_one())
+        .collect::<Vec<_>>();
+    assert_eq!(vec![6, 12, 24], result);
 
     let test = NumType::IsMagicNum(1024);
     assert!(test.predicate_self()(1024));

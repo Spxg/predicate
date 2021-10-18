@@ -6,10 +6,22 @@ Just need to implement Predicate Trait with [predicate-macros](https://github.co
 ## How to work
 ![how_to_work](https://github.com/Spxg/predicate/blob/master/how_to_work.png)
 
+## Feature
+* rc (default)
+* arc
+
+Enable Arc Feature: 
+```
+[dependencies.predicate]
+version = "0.1"
+default-features = false
+features = ["arc"]
+```
+
 ## Example
 ```rust
 #[add_fields]
-#[derive(Clone, BitAnd, BitOr, OpUnitTrait)]
+#[derive(BitAnd, BitOr, OpUnitTrait)]
 enum NumType {
     Odd,
     Even,
@@ -17,6 +29,7 @@ enum NumType {
     DivByFour,
     DivByFive,
     IsMagicNum(i32),
+    More(Box<dyn Fn(&i32) -> bool>),
 }
 
 impl Predicate for NumType {
@@ -30,6 +43,7 @@ impl Predicate for NumType {
             NumType::DivByFour => item % 4 == 0,
             NumType::DivByFive => item % 5 == 0,
             NumType::IsMagicNum(num) => item == num,
+            NumType::More(f) => f(item),
             _ => false,
         }
     }
@@ -71,6 +85,14 @@ fn main() {
         .map(|num| *num)
         .collect::<Vec<_>>();
     assert_eq!(vec![3, 5, 9, 15, 20], result);
+
+    let test = NumType::More(Box::new(|i| i % 6 == 0));
+    let result = nums
+        .clone()
+        .into_iter()
+        .filter(test.predicate_ref_one())
+        .collect::<Vec<_>>();
+    assert_eq!(vec![6, 12, 24], result);
 
     let test = NumType::IsMagicNum(1024);
     assert!(test.predicate_self()(1024));
