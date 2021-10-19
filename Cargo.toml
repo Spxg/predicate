@@ -20,4 +20,4 @@ rc = []
 arc = []
 
 [dev-dependencies]
-predicate-macros = { git = "https://github.com/Spxg/predicate-macros.git", branch = "master" }
+predicate-macros = "0.1"
