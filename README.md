@@ -1,4 +1,6 @@
 # Predicate
+[![crates.io version](https://img.shields.io/crates/v/predicate.svg)](https://crates.io/crates/predicate)
+
 Use enum to predicate something.
 
 Just need to implement Predicate Trait with [predicate-macros](https://github.com/Spxg/predicate-macros) crate, support | and & operator.
