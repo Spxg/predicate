@@ -3,6 +3,8 @@ Use enum to predicate something.
 
 Just need to implement Predicate Trait with [predicate-macros](https://github.com/Spxg/predicate-macros) crate, support | and & operator.
 
+**Don't implement Traits by self.**
+
 ## How to work
 ![how_to_work](https://github.com/Spxg/predicate/blob/master/how_to_work.png)
 
