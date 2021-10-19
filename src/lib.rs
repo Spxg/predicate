@@ -86,7 +86,7 @@ where
                 lhs.get_op_unit().check(item) || rhs.get_op_unit().check(item)
             },
             Operation::Single => {
-                let lhs = lhs.expect("rhs is none");
+                let lhs = lhs.expect("lhs is none");
                 lhs.as_ref().rules(item)
             },
         }
