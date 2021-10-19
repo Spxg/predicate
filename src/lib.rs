@@ -3,7 +3,7 @@
 //!
 //! Just need to implement Predicate Trait with [predicate-macros](https://github.com/Spxg/predicate-macros) crate, support | and & operator.
 //! 
-//! **Don't implement Traits by self.**
+//! **Don't implement traits by self.**
 //! 
 //! How to work: <https://github.com/Spxg/predicate/blob/master/how_to_work.png>.
 //!
