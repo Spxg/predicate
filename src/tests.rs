@@ -1,7 +1,7 @@
 use crate::{OpUnit, OpUnitRcType, OpUnitTrait, Operation, Predicate};
-use predicate_macros::{add_fields, BitAnd, BitOr, OpUnitTrait};
+use predicate_macros::{add_field, BitAnd, BitOr, OpUnitTrait};
 
-#[add_fields]
+#[add_field]
 #[derive(BitAnd, BitOr, OpUnitTrait)]
 enum NumType {
     Odd,
@@ -29,6 +29,7 @@ impl Predicate for NumType {
         }
     }
 }
+
 #[test]
 fn filter_test() {
     let nums = vec![1, 2, 3, 4, 5, 6, 9, 12, 15, 16, 20, 22, 24, 1024];
@@ -38,7 +39,7 @@ fn filter_test() {
     let result = nums
         .clone()
         .into_iter()
-        .filter(test.predicate_ref_one())
+        .filter(test.wrap_ret().predicate_ref_one())
         .collect::<Vec<_>>();
     assert_eq!(vec![1, 3, 5, 9, 12, 15, 20, 24], result);
 
@@ -46,7 +47,7 @@ fn filter_test() {
     let result = nums
         .clone()
         .into_iter()
-        .filter(test.predicate_ref_one())
+        .filter(test.wrap_ret().predicate_ref_one())
         .collect::<Vec<_>>();
     assert!(result.is_empty());
 
@@ -54,7 +55,7 @@ fn filter_test() {
     let result = nums
         .clone()
         .into_iter()
-        .filter(test.predicate_ref_one())
+        .filter(test.wrap_ret().predicate_ref_one())
         .collect::<Vec<_>>();
     assert_eq!(result, nums);
 
@@ -62,19 +63,21 @@ fn filter_test() {
     let result = nums
         .clone()
         .iter()
-        .filter(test.predicate_ref_double())
+        .filter(test.wrap_ret().predicate_ref_double())
         .map(|num| *num)
         .collect::<Vec<_>>();
     assert_eq!(vec![3, 5, 9, 15, 20], result);
 
     let test = NumType::More(Box::new(|i| i % 6 == 0));
+    let ret = test.wrap_ret();
     let result = nums
         .clone()
         .into_iter()
-        .filter(test.predicate_ref_one())
+        .filter(ret.predicate_ref_one())
         .collect::<Vec<_>>();
     assert_eq!(vec![6, 12, 24], result);
+    assert!(ret.predicate_self()(36));
 
     let test = NumType::IsMagicNum(1024);
-    assert!(test.predicate_self()(1024));
+    assert!(test.wrap_ret().predicate_self()(1024));
 }

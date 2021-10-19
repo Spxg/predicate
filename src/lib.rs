@@ -14,6 +14,41 @@ pub enum Operation {
     Single,
 }
 
+pub struct PredicateRet<T> {
+    inner: OpUnitRcType<T>,
+}
+
+impl<T> PredicateRet<T>
+where
+    T: Predicate,
+{
+    pub fn new(inner: OpUnitRcType<T>) -> PredicateRet<T> {
+        PredicateRet { inner }
+    }
+
+    pub fn get_inner_by_clone(&self) -> OpUnitRcType<T> {
+        self.inner.clone()
+    }
+
+    pub fn predicate_ref_double(&self) -> Box<dyn Fn(&&<T as Predicate>::Item) -> bool> {
+        let root = self.get_inner_by_clone();
+        let f = move |item: &&<T as Predicate>::Item| root.get_op_unit().check(&item);
+        Box::new(f)
+    }
+
+    pub fn predicate_ref_one(&self) -> Box<dyn Fn(&<T as Predicate>::Item) -> bool> {
+        let root = self.get_inner_by_clone();
+        let f = move |item: &<T as Predicate>::Item| root.get_op_unit().check(&item);
+        Box::new(f)
+    }
+
+    pub fn predicate_self(&self) -> Box<dyn Fn(<T as Predicate>::Item) -> bool> {
+        let root = self.get_inner_by_clone();
+        let f = move |item: <T as Predicate>::Item| root.get_op_unit().check(&item);
+        Box::new(f)
+    }
+}
+
 pub struct OpUnit<T> {
     op: Operation,
     lhs: Option<OpUnitRcType<T>>,
@@ -32,26 +67,28 @@ where
         OpUnit { op, lhs, rhs }
     }
 
-    pub fn get_lhs_and_rhs(&self) -> (OpUnitRcType<T>, OpUnitRcType<T>) {
-        let default = OpUnitRcType::new(T::default());
-        let lhs = match self.lhs.as_ref() {
-            Some(lhs) => lhs.clone(),
-            None => default.clone(),
-        };
-        let rhs = match self.rhs.as_ref() {
-            Some(rhs) => rhs.clone(),
-            None => default,
-        };
-        (lhs, rhs)
+    pub fn get_lhs_and_rhs(&self) -> (Option<OpUnitRcType<T>>, Option<OpUnitRcType<T>>) {
+        (self.lhs.clone(), self.rhs.clone())
     }
 
     pub fn check(&self, item: &<T as Predicate>::Item) -> bool {
         let (lhs, rhs) = self.get_lhs_and_rhs();
 
         match &self.op {
-            Operation::And => lhs.get_op_unit().check(item) && rhs.get_op_unit().check(item),
-            Operation::Or => lhs.get_op_unit().check(item) || rhs.get_op_unit().check(item),
-            Operation::Single => lhs.as_ref().rules(item),
+            Operation::And => {
+                let lhs = lhs.expect("lhs is none");
+                let rhs = rhs.expect("rhs is none");
+                lhs.get_op_unit().check(item) && rhs.get_op_unit().check(item)
+            },
+            Operation::Or => {
+                let lhs = lhs.expect("lhs is none");
+                let rhs = rhs.expect("rhs is none");
+                lhs.get_op_unit().check(item) || rhs.get_op_unit().check(item)
+            },
+            Operation::Single => {
+                let lhs = lhs.expect("rhs is none");
+                lhs.as_ref().rules(item)
+            },
         }
     }
 }
@@ -69,7 +106,7 @@ where
     }
 }
 
-pub trait OpUnitTrait: Sized + Default {
+pub trait OpUnitTrait: Sized {
     fn get_op_unit(self: &OpUnitRcType<Self>) -> OpUnitRcType<OpUnit<Self>>;
 }
 
@@ -78,21 +115,7 @@ pub trait Predicate: OpUnitTrait + 'static {
 
     fn rules(&self, item: &Self::Item) -> bool;
 
-    fn predicate_ref_double(self) -> Box<dyn FnMut(&&Self::Item) -> bool> {
-        let root_unit = OpUnitRcType::new(self);
-        let f = move |item: &&Self::Item| root_unit.get_op_unit().check(item);
-        Box::new(f)
-    }
-
-    fn predicate_ref_one(self) -> Box<dyn FnMut(&Self::Item) -> bool> {
-        let root_unit = OpUnitRcType::new(self);
-        let f = move |item: &Self::Item| root_unit.get_op_unit().check(item);
-        Box::new(f)
-    }
-
-    fn predicate_self(self) -> Box<dyn FnMut(Self::Item) -> bool> {
-        let root_unit = OpUnitRcType::new(self);
-        let f = move |item: Self::Item| root_unit.get_op_unit().check(&item);
-        Box::new(f)
+    fn wrap_ret(self) -> PredicateRet<Self> {
+        PredicateRet::new(OpUnitRcType::new(self))
     }
 }
